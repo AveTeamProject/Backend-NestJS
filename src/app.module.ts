@@ -6,6 +6,8 @@ import configuration from './config/configuration'
 import { validate } from 'env.validation'
 import { AuthModule } from './auth/auth.module'
 import { UserModule } from './user/user.module'
+import { TypeOrmModule } from '@nestjs/typeorm'
+import { typeOrmAsyncConfig } from 'db/seeds/data-source'
 
 @Module({
   imports: [
@@ -15,6 +17,7 @@ import { UserModule } from './user/user.module'
       load: [configuration],
       validate: validate
     }),
+    TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
     AuthModule,
     UserModule
   ],
