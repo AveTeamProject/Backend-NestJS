@@ -1,4 +1,4 @@
-import { Body, Post, Controller, Get, Request, UseGuards } from '@nestjs/common'
+import { Body, Post, Controller, Get, Request, UseGuards, Req } from '@nestjs/common'
 import { UserService } from 'src/user/user.service'
 import { AuthService } from './auth.service'
 import { CreateUserDTO } from 'src/user/dto/create-user.dto'
@@ -10,8 +10,10 @@ import { JwtAuthGuard } from './jwt-guard'
 import { ValidateTokenDTO } from './dto/validate-token.dto'
 import { Enable2FAType } from './types'
 import { LoginDTO } from './dto/login.dto'
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 
 @Controller('auth')
+@ApiTags('Auth API')
 export class AuthController {
   constructor(
     private userService: UserService,
@@ -19,6 +21,11 @@ export class AuthController {
   ) {}
 
   @Post('signup')
+  @ApiOperation({ summary: 'Register new user' })
+  @ApiResponse({
+    status: 200,
+    description: 'It will return the user in the response'
+  })
   signup(
     @Body()
     userDTO: CreateUserDTO
@@ -60,9 +67,20 @@ export class AuthController {
   ): Promise<UpdateResult> {
     return this.authService.disable2FA(req.user.userId)
   }
+
   @Get('profile')
-  @UseGuards(AuthGuard('bearer'))
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(JwtAuthGuard)
   getProfile(
+    @Req()
+    request
+  ) {
+    return request.user
+  }
+
+  @Get('profile-via-api-key')
+  @UseGuards(AuthGuard('bearer'))
+  getProfileViaApiKey(
     @Request()
     req
   ) {

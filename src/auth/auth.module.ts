@@ -4,8 +4,8 @@ import { JwtModule } from '@nestjs/jwt'
 import { UserModule } from 'src/user/user.module'
 import { AuthService } from './auth.service'
 import { JwtStrategy } from './jwt-strategy'
-import { AuthController } from './auth.controller'
 import { ApiKeyStrategy } from './api-key-strategy'
+import { AuthController } from './auth.controller'
 
 @Module({
   imports: [
