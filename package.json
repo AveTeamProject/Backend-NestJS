@@ -15,7 +15,7 @@
     "start": "nest start",
     "clean": "rmdir /s /q dist",
     "start:dev": "cross-env NODE_ENV=development nest build --webpack --webpackPath webpack-hmr.config.js --watch",
-    "start:prod": "cross-env NODE_ENV=production node dist/main",
+    "start:prod": "cross-env NODE_ENV=production node dist/src/main",
     "start:debug": "nest start --debug --watch",
     "test": "jest",
     "test:watch": "jest --watch",
