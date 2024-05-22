@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module'
 import { UserModule } from './user/user.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { typeOrmAsyncConfig } from 'db/seeds/data-source'
+import { AttachmentModule } from './attachment/attachment.module'
 
 @Module({
   imports: [
@@ -19,7 +20,9 @@ import { typeOrmAsyncConfig } from 'db/seeds/data-source'
     }),
     TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
     AuthModule,
-    UserModule
+    UserModule,
+    AttachmentModule,
+    ConfigModule.forRoot({ isGlobal: true })
   ],
   controllers: [AppController],
   providers: [AppService]
