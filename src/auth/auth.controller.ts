@@ -51,34 +51,6 @@ export class AuthController {
     return this.authService.refreshToken(refreshTokenDTO)
   }
 
-  // @Get('enable-2fa')
-  // @UseGuards(JwtAuthGuard)
-  // enable2FA(
-  //   @Request()
-  //   req
-  // ): Promise<Enable2FAType> {
-  //   return this.authService.enable2FA(req.user.userId)
-  // }
-
-  // @Post('validate-2fa')
-  // @UseGuards(JwtAuthGuard)
-  // validate2FA(
-  //   @Request()
-  //   req,
-  //   @Body()
-  //   ValidateTokenDTO: ValidateTokenDTO
-  // ): Promise<{ verified: boolean }> {
-  //   return this.authService.validate2FAToken(req.user.userId, ValidateTokenDTO.token)
-  // }
-  // @Get('disable-2fa')
-  // @UseGuards(JwtAuthGuard)
-  // disable2FA(
-  //   @Request()
-  //   req
-  // ): Promise<UpdateResult> {
-  //   return this.authService.disable2FA(req.user.userId)
-  // }
-
   @Get(ROUTES.AUTH.PROFILE)
   @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard)
@@ -88,19 +60,6 @@ export class AuthController {
   ) {
     return request.user
   }
-
-  // @Get('profile-via-api-key')
-  // @UseGuards(AuthGuard('bearer'))
-  // getProfileViaApiKey(
-  //   @Request()
-  //   req
-  // ) {
-  //   delete req.user.password
-  //   return {
-  //     msg: 'authenticated with api key',
-  //     user: req.user
-  //   }
-  // }
 
   @Get('test')
   testEnvVariable() {
