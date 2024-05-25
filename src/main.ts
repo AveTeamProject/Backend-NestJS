@@ -8,6 +8,7 @@ declare const module: any
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   app.useGlobalPipes(new ValidationPipe())
+  // app.useGlobalGuards(new RolesGuard(new Reflector()))
   // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('Booking Website')

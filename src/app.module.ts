@@ -9,7 +9,10 @@ import { UserModule } from './user/user.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { typeOrmAsyncConfig } from 'db/seeds/data-source'
 import { AttachmentModule } from './attachment/attachment.module'
-
+import { ProductModule } from './product/product.module'
+import { OrderModule } from './order/order.module'
+import { CommonModule } from './common/common.module'
+import { JwtModule } from '@nestjs/jwt'
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -19,10 +22,13 @@ import { AttachmentModule } from './attachment/attachment.module'
       validate: validate
     }),
     TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
+    JwtModule,
     AuthModule,
     UserModule,
     AttachmentModule,
-    ConfigModule.forRoot({ isGlobal: true })
+    ProductModule,
+    OrderModule,
+    CommonModule
   ],
   controllers: [AppController],
   providers: [AppService]

@@ -1,12 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Exclude } from 'class-transformer'
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
+import { Order } from 'src/entities/order.entity'
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm'
+import { BaseEntity } from './base.entity'
+import { Role } from './role.entity'
 
 @Entity('users')
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number
-
+export class User extends BaseEntity {
   @ApiProperty({
     example: 'Jane',
     description: 'Provide the first name of the user'
@@ -30,7 +29,6 @@ export class User {
     description: 'Provide the password of the user'
   })
   @Column()
-  @Exclude()
   password: string
 
   @Column({ nullable: true, type: 'text' })
@@ -41,4 +39,11 @@ export class User {
 
   @Column()
   apiKey: string
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[]
+
+  @ManyToMany(() => Role)
+  @JoinTable({ name: 'user_roles' })
+  roles: Role[]
 }

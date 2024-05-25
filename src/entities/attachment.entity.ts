@@ -1,5 +1,5 @@
-import { BaseEntity } from 'src/common/base.entity'
-import { User } from 'src/user/user.entity'
+import { BaseEntity } from 'src/entities/base.entity'
+import { User } from 'src/entities/user.entity'
 import { Entity, Column, ManyToOne } from 'typeorm'
 
 @Entity('attachment')
