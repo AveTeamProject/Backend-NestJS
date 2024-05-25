@@ -2,7 +2,6 @@ import { Body, Post, Controller, Get, UseGuards, Req } from '@nestjs/common'
 import { UserService } from 'src/user/user.service'
 import { AuthService } from './auth.service'
 import { CreateUserDTO } from 'src/user/dto/create-user.dto'
-import { User } from 'src/user/user.entity'
 // import { AuthGuard } from '@nestjs/passport'
 // import { UpdateResult } from 'typeorm'
 import { JwtAuthGuard } from './jwt-guard'
@@ -13,6 +12,11 @@ import { LoginDTO } from './dto/login.dto'
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { RefreshTokenDTO } from './dto/refrestToken.dto'
 import { ROUTES } from 'src/common/constants'
+import { UserResponseDTO } from 'src/user/dto/user-response-dto'
+import { RolesGuard } from './roles.guard'
+import { Roles } from '../decorators/roles.decorator'
+import { Public } from 'src/decorators/global.decorator'
+import { ROLES } from 'src/enums'
 
 @Controller(ROUTES.AUTH.BASE)
 @ApiTags('Auth API')
@@ -31,11 +35,12 @@ export class AuthController {
   signup(
     @Body()
     userDTO: CreateUserDTO
-  ): Promise<User> {
+  ): Promise<UserResponseDTO> {
     return this.userService.create(userDTO)
   }
 
   @Post(ROUTES.AUTH.LOGIN)
+  @Public()
   login(
     @Body()
     loginDTO: LoginDTO
@@ -62,6 +67,8 @@ export class AuthController {
   }
 
   @Get('test')
+  @UseGuards(JwtAuthGuard, RolesGuard) // Ensure correct order
+  @Roles(ROLES.ADMIN)
   testEnvVariable() {
     return this.authService.getEnvVariable()
   }
