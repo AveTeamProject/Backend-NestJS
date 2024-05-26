@@ -9,7 +9,7 @@ export class ResponseTransformInterceptor implements NestInterceptor {
       map(data => {
         const response =  context.switchToHttp().getResponse();
         return {
-          code: response.statusCode || 200,
+          code: 200,
           message: response.message || 'Success',
           data: data
         };
