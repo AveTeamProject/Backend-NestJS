@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { ResponseTransformInterceptor } from './middleware/response-transform-interceptor'
+import { TransactionInterceptor } from './middleware/transaction-interceptor'
 declare const module: any
 
 async function bootstrap() {
@@ -11,6 +12,9 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe())
   // app.useGlobalGuards(new RolesGuard(new Reflector()))
   app.useGlobalInterceptors(new ResponseTransformInterceptor());
+  const transactionInterceptor = app.get(TransactionInterceptor);
+  app.useGlobalInterceptors(transactionInterceptor);
+  
   // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('Booking Website')

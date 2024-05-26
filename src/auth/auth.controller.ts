@@ -35,9 +35,13 @@ export class AuthController {
   })
   signup(
     @Body()
-    userDTO: CreateUserDTO
+    userDTO: CreateUserDTO,
+    @Req()
+    request: any,
   ): Promise<UserResponseDTO> {
+    const transactionManager = request.transactionManager;
     return this.userService.create(userDTO)
+    // return this.userService.create2(userDTO,transactionManager)
   }
 
   @Post(ROUTES.AUTH.LOGIN)

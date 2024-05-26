@@ -16,6 +16,8 @@ import { JwtModule } from '@nestjs/jwt'
 import { MailerModule } from '@nestjs-modules/mailer'
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter'
 import { join } from 'path'
+import { TransactionInterceptor } from './middleware/transaction-interceptor'
+import { TransactionManager } from './transaction/transaction-manager'
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -57,6 +59,7 @@ import { join } from 'path'
     CommonModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService,     TransactionInterceptor,
+    TransactionManager,]
 })
 export class AppModule {}
