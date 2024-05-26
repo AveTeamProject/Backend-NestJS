@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
-import { PutObjectCommand, S3Client, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { S3Client, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3'
+import { Upload } from '@aws-sdk/lib-storage'
 import { ConfigService } from '@nestjs/config'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { v4 as uuid4 } from 'uuid'
@@ -10,10 +11,11 @@ import { User } from 'src/entities/user.entity'
 import { AttachmentResponseDTO } from './dto/attachment-response.dto'
 import { CommonService } from 'src/common/common.service'
 import { UserResponseDTO } from 'src/user/dto/user-response-dto'
+import { Readable } from 'stream'
 
 @Injectable()
 export class AttachmentService {
-  private readonly s3Client = new S3Client({ region: this.configService.getOrThrow('AWS_REGION') })
+  private readonly s3Client = new S3Client({ region: this.configService.getOrThrow<string>('awsRegion') })
   constructor(
     private readonly configService: ConfigService,
 
@@ -28,21 +30,28 @@ export class AttachmentService {
 
   async upload(request: any, fileName: string, file: Buffer): Promise<AttachmentResponseDTO> {
     const uniqueId = uuid4()
-
-    // const uniqueFileName = `${uniqueId}-${fileName}`
-    // const extension = fileName.split('.').pop()
     const key = uniqueId + '/' + fileName
-    await this.s3Client.send(
-      new PutObjectCommand({
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: key,
-        Body: file
-      })
-    )
 
-    // create public url
+    // Transfer Buffer to Stream
+    const fileStream = new Readable()
+    fileStream.push(file)
+    fileStream.push(null)
+
+    // Create an instance for Upload
+    const upload = new Upload({
+      client: this.s3Client,
+      params: {
+        Bucket: this.configService.getOrThrow<string>('awsBucketName'),
+        Key: key,
+        Body: fileStream
+      }
+    })
+
+    await upload.done()
+
+    // Create public url
     const command = new GetObjectCommand({
-      Bucket: process.env.AWS_BUCKET_NAME,
+      Bucket: this.configService.getOrThrow<string>('awsBucketName'),
       Key: key
     })
 
@@ -78,7 +87,7 @@ export class AttachmentService {
     if (existAttachment) {
       await this.s3Client.send(
         new DeleteObjectCommand({
-          Bucket: process.env.AWS_BUCKET_NAME,
+          Bucket: this.configService.getOrThrow<string>('awsBucketName'),
           Key: `${ownerId}-${existAttachment.fileName}`
         })
       )
