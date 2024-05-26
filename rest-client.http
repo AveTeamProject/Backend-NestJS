@@ -1,5 +1,5 @@
 ### Signup User
-POST http://localhost:3000/auth/signup
+POST http://localhost:8080/auth/signup
 Content-Type: application/json
 
 {
@@ -10,7 +10,7 @@ Content-Type: application/json
 }
 
 ### Login User
-POST http://localhost:3000/auth/login
+POST http://localhost:8080/auth/login
 Content-Type: application/json
 
 {
@@ -19,7 +19,7 @@ Content-Type: application/json
 }
 
 ### Login User
-POST http://localhost:3000/auth/login
+POST http://localhost:8080/auth/login
 Content-Type: application/json
 
 {
@@ -28,21 +28,21 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:3000/profile
+GET http://localhost:8080/profile
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Ik1lcmVkaXRoX01pbGxlcjEyQGhvdG1haWwuY29tIiwidXNlcklkIjoxOCwiaWF0IjoxNzEzNDMwNjc2LCJleHAiOjE3MTM1MTcwNzZ9.uXxwNKAtLlDA8TS927yh0UWQ1d7wrCBhoGJkcxxCoNs
 #### enable 2fa
-GET http://localhost:3000/auth/enable-2fa
+GET http://localhost:8080/auth/enable-2fa
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhcmlsZUBnbWFpbC5jb20iLCJ1c2VySWQiOjIsImFydGlzdElkIjoyLCJpYXQiOjE3MTMyNDYzNDgsImV4cCI6MTcxMzMzMjc0OH0.d5sAeSjlYT1_D3LCzzfE4w4E4vkje39NI5LpTz_g71U
 
 #### enable 2fa
-GET http://localhost:3000/auth/disable-2fa
+GET http://localhost:8080/auth/disable-2fa
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhcmlsZUBnbWFpbC5jb20iLCJ1c2VySWQiOjIsImFydGlzdElkIjoyLCJpYXQiOjE3MTMxOTI1ODcsImV4cCI6MTcxMzI3ODk4N30.h2rH8O1ZbTgRpYHcfDmWvd20_FllRwwRfiz9WszbHpk
 
 ### validate 2 fa
-POST http://localhost:3000/auth/validate-2fa
+POST http://localhost:8080/auth/validate-2fa
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhcmlsZUBnbWFpbC5jb20iLCJ1c2VySWQiOjIsImFydGlzdElkIjoyLCJpYXQiOjE3MTMyNDYzNDgsImV4cCI6MTcxMzMzMjc0OH0.d5sAeSjlYT1_D3LCzzfE4w4E4vkje39NI5LpTz_g71U
 
@@ -51,15 +51,18 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhcmlsZ
 }
 
 ### disable 2 fa
-POST http://localhost:3000/auth/validate-2fa
+POST http://localhost:8080/auth/validate-2fa
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImhhcmlsZUBnbWFpbC5jb20iLCJ1c2VySWQiOjIsImFydGlzdElkIjoyLCJpYXQiOjE3MTMxOTI1ODcsImV4cCI6MTcxMzI3ODk4N30.h2rH8O1ZbTgRpYHcfDmWvd20_FllRwwRfiz9WszbHpk
 
 ###
 ## API key: 7ea253ac-823e-427c-b513-8d5e0ac6b737
-GET http://localhost:3000/auth/profile
+GET http://localhost:8080/auth/profile
 Content-Type: application/json
 Authorization: Bearer 7ea253ac-823e-427c-b513-8d5e0ac6b737
 
 #### Test env
-GET http://localhost:3000/auth/test
+GET http://localhost:8080/auth/test
+
+#### Test custom exception
+GET http://localhost:8080/auth/testCustomException

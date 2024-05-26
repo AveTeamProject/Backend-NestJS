@@ -18,7 +18,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { join } from 'path'
 @Module({
   imports: [
-    ConfigModule.forRoot({  
+    ConfigModule.forRoot({
       envFilePath: [`${process.cwd()}/.env.${process.env.NODE_ENV}`],
       isGlobal: true,
       load: [configuration],
@@ -59,5 +59,4 @@ import { join } from 'path'
   controllers: [AppController],
   providers: [AppService]
 })
-
 export class AppModule {}
