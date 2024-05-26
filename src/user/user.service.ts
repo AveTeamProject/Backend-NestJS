@@ -29,7 +29,7 @@ export class UserService {
     user.email = userDTO.email
     user.apiKey = uuid4()
 
-    const defaultRole = await this.roleRepository.findOneBy({ roleName: ROLES.USER })
+    const defaultRole = await this.roleRepository.findOneBy({ roleName: ROLES.MEMBER })
     user.roles = [defaultRole]
 
     const salt = await bcrypt.genSalt()
