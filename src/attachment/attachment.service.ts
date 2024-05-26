@@ -29,11 +29,13 @@ export class AttachmentService {
   async upload(request: any, fileName: string, file: Buffer): Promise<AttachmentResponseDTO> {
     const uniqueId = uuid4()
 
-    const uniqueFileName = `${uniqueId}-${fileName}`
+    // const uniqueFileName = `${uniqueId}-${fileName}`
+    // const extension = fileName.split('.').pop()
+    const key = uniqueId + '/' + fileName
     await this.s3Client.send(
       new PutObjectCommand({
         Bucket: process.env.AWS_BUCKET_NAME,
-        Key: uniqueFileName,
+        Key: key,
         Body: file
       })
     )
@@ -41,7 +43,7 @@ export class AttachmentService {
     // create public url
     const command = new GetObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME,
-      Key: uniqueFileName
+      Key: key
     })
 
     const signedUrl = await getSignedUrl(this.s3Client, command, { expiresIn: 36000 }) // expired time is in 10 hours

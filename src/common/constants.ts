@@ -9,6 +9,7 @@ export const ROUTES = {
   ATTACHMENT: {
     BASE: 'attachment',
     UPLOAD: 'upload',
+    UPLOADS: 'uploads',
     DELETE: 'delete'
   }
   // Add other routes here...
