@@ -10,17 +10,19 @@ import { UserResponseDTO } from './dto/user-response-dto'
 import { Role } from 'src/entities/role.entity'
 import { CommonService } from 'src/common/common.service'
 import { ROLES } from 'src/enums'
+import { MailerService } from '@nestjs-modules/mailer'
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private readonly userRepository: Repository<User>,
 
     @InjectRepository(Role)
-    private roleRepository: Repository<Role>,
+    private readonly roleRepository: Repository<Role>,
 
-    private readonly commonService: CommonService
+    private readonly commonService: CommonService,
+    private readonly mailerService: MailerService
   ) {}
   async create(userDTO: CreateUserDTO): Promise<UserResponseDTO> {
     const user = new User()
@@ -36,6 +38,17 @@ export class UserService {
     user.password = await bcrypt.hash(userDTO.password, salt)
 
     const savedUser = await this.userRepository.save(user)
+
+    if (savedUser) {
+      this.mailerService.sendMail({
+        to: savedUser.email,
+        subject: 'Testing Nest MailerModule ✔',
+        template: 'welcome',
+        context: {
+          name: savedUser.firstName
+        }
+      })
+    }
 
     const userResponse = this.commonService.mapper(savedUser, UserResponseDTO) as UserResponseDTO
     return userResponse

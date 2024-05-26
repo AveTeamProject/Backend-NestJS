@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import configuration from './config/configuration'
 import { validate } from 'env.validation'
 import { AuthModule } from './auth/auth.module'
@@ -13,6 +13,9 @@ import { ProductModule } from './product/product.module'
 import { OrderModule } from './order/order.module'
 import { CommonModule } from './common/common.module'
 import { JwtModule } from '@nestjs/jwt'
+import { MailerModule } from '@nestjs-modules/mailer'
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter'
+import { join } from 'path'
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -20,6 +23,29 @@ import { JwtModule } from '@nestjs/jwt'
       isGlobal: true,
       load: [configuration],
       validate: validate
+    }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: configService.get('emailHost'),
+          auth: {
+            user: configService.get('emailUsername'),
+            pass: configService.get('emailPassword')
+          }
+        },
+        defaults: {
+          from: `"No Reply" <${configService.get('emailFrom')}>`
+        },
+        template: {
+          dir: join(process.cwd(), 'src/templates/email'),
+          adapter: new HandlebarsAdapter(),
+          options: {
+            strict: true
+          }
+        }
+      }),
+      inject: [ConfigService]
     }),
     TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
     JwtModule,
