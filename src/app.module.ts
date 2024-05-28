@@ -7,7 +7,6 @@ import { validate } from 'env.validation'
 import { AuthModule } from './auth/auth.module'
 import { UserModule } from './user/user.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { typeOrmAsyncConfig } from 'db/seeds/data-source'
 import { AttachmentModule } from './attachment/attachment.module'
 import { ProductModule } from './product/product.module'
 import { OrderModule } from './order/order.module'
@@ -16,6 +15,8 @@ import { JwtModule } from '@nestjs/jwt'
 import { MailerModule } from '@nestjs-modules/mailer'
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter'
 import { join } from 'path'
+import { SeedModule } from './seed/seed.module'
+import { typeOrmAsyncConfig } from 'db/data-source'
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -54,7 +55,8 @@ import { join } from 'path'
     AttachmentModule,
     ProductModule,
     OrderModule,
-    CommonModule
+    CommonModule,
+    SeedModule
   ],
   controllers: [AppController],
   providers: [AppService]
