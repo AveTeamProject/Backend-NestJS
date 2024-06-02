@@ -3,12 +3,14 @@ import { AppModule } from './app.module'
 import { ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { ResponseTransformInterceptor } from './middleware/response-transform-interceptor'
 declare const module: any
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   app.useGlobalPipes(new ValidationPipe())
   // app.useGlobalGuards(new RolesGuard(new Reflector()))
+  app.useGlobalInterceptors(new ResponseTransformInterceptor());
   // Swagger documentation
   const config = new DocumentBuilder()
     .setTitle('Booking Website')

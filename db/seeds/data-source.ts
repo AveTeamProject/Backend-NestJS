@@ -30,7 +30,7 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
       entities: [User, Role, Product, Order, Attachment],
       synchronize: true, // if production need set to false
       migrations: ['dist/db/migrations/*.js'],
-      ssl: true
+      ssl: process.env.NODE_ENV === 'development' ? false : true
     }
   }
 }

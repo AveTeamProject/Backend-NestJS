@@ -1,4 +1,4 @@
-import { Body, Post, Controller, Get, UseGuards, Req } from '@nestjs/common'
+import { Body, Post, Controller, Get, UseGuards, Req, HttpStatus } from '@nestjs/common'
 import { UserService } from 'src/user/user.service'
 import { AuthService } from './auth.service'
 import { CreateUserDTO } from 'src/user/dto/create-user.dto'
@@ -10,13 +10,14 @@ import { JwtAuthGuard } from './jwt-guard'
 // import { Enable2FAType } from './types'
 import { LoginDTO } from './dto/login.dto'
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { RefreshTokenDTO } from './dto/refrestToken.dto'
+import { RefreshTokenDTO } from './dto/refreshToken.dto'
 import { ROUTES } from 'src/common/constants'
 import { UserResponseDTO } from 'src/user/dto/user-response-dto'
 import { RolesGuard } from './roles.guard'
 import { Roles } from '../decorators/roles.decorator'
 import { Public } from 'src/decorators/global.decorator'
 import { ROLES } from 'src/enums'
+import { ExampleException } from 'src/custom-exceptions/example-exception'
 
 @Controller(ROUTES.AUTH.BASE)
 @ApiTags('Auth API')
@@ -71,5 +72,10 @@ export class AuthController {
   @Roles(ROLES.ADMIN)
   testEnvVariable() {
     return this.authService.getEnvVariable()
+  }
+
+  @Get('testCustomException')
+  testCustomException(): string {
+    throw new ExampleException('Custom message', HttpStatus.NOT_FOUND)
   }
 }
