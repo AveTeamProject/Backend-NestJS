@@ -59,7 +59,7 @@ export class AuthService {
         secret: this.configService.get<string>('jwtRefreshSecret')
       })
 
-      const newPayload = { email: payload.email, userId: payload.userId, role: payload.roles }
+      const newPayload = { email: payload.email, userId: payload.userId, roles: payload.roles }
 
       const newAccessToken = this.jwtService.sign(newPayload, {
         secret: this.configService.get<string>('jwtSecret'),

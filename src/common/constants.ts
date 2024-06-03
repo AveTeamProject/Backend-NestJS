@@ -4,7 +4,8 @@ export const ROUTES = {
     SIGNUP: 'signup',
     LOGIN: 'login',
     REFRESH_TOKEN: 'refresh-token',
-    PROFILE: 'profile'
+    PROFILE: 'profile',
+    LOGOUT: 'logout'
   },
   ATTACHMENT: {
     BASE: 'attachment',
