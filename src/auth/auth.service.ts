@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config'
 import { LoginDTO } from './dto/login.dto'
 import * as bcrypt from 'bcryptjs'
 import { Enable2FAType, JwtPayload } from './types'
-import { RefreshTokenDTO } from './dto/refreshtoken.dto'
+import { RefreshTokenDTO } from './dto/refresh-token.dto'
 
 type LoginResponse =
   | {
