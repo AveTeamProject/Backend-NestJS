@@ -22,8 +22,7 @@ export class RolesGuard implements CanActivate {
       return true
     }
     const request = context.switchToHttp().getRequest()
-
-    const token = this.extractTokenFromHeader(request)
+    const token = request.cookies['accessToken']
 
     if (!token) {
       throw new UnauthorizedException()
@@ -49,8 +48,8 @@ export class RolesGuard implements CanActivate {
     return hasRole
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = (request.headers as any).authorization?.split(' ') ?? []
-    return type === 'Bearer' ? token : undefined
-  }
+  // private extractTokenFromCookie(request: Request): string | undefined {
+  //   const [type, token] = (request.headers as any).authorization?.split(' ') ?? []
+  //   return type === 'Bearer' ? token : undefined
+  // }
 }

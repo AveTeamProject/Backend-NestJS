@@ -1,4 +1,4 @@
-import { Body, Post, Controller, Get, UseGuards, Req, HttpStatus } from '@nestjs/common'
+import { Body, Post, Controller, Get, UseGuards, Req, HttpStatus, Request, Response } from '@nestjs/common'
 import { UserService } from 'src/user/user.service'
 import { AuthService } from './auth.service'
 import { CreateUserDTO } from 'src/user/dto/create-user.dto'
@@ -9,7 +9,7 @@ import { JwtAuthGuard } from './jwt-guard'
 // import { ValidateTokenDTO } from './dto/validate-token.dto'
 // import { Enable2FAType } from './types'
 import { LoginDTO } from './dto/login.dto'
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { RefreshTokenDTO } from './dto/refresh-token.dto'
 import { ROUTES } from 'src/common/constants'
 import { UserResponseDTO } from 'src/user/dto/user-response-dto'
@@ -21,6 +21,7 @@ import { ExampleException } from 'src/custom-exceptions/example-exception'
 
 @Controller(ROUTES.AUTH.BASE)
 @ApiTags('Auth API')
+@ApiCookieAuth()
 export class AuthController {
   constructor(
     private userService: UserService,
@@ -42,19 +43,56 @@ export class AuthController {
 
   @Post(ROUTES.AUTH.LOGIN)
   @Public()
-  login(
+  async login(
     @Body()
-    loginDTO: LoginDTO
+    loginDTO: LoginDTO,
+    @Response()
+    res
   ) {
-    return this.authService.login(loginDTO)
+    const result = await this.authService.login(loginDTO)
+    if ('accessToken' in result) {
+      res.cookie('accessToken', result.accessToken, { httpOnly: true })
+      res.cookie('refreshToken', result.refreshToken, { httpOnly: true })
+    }
+    return res.status(200).json({
+      code: 200,
+      message: 'Success',
+      data: result
+    })
   }
 
   @Post(ROUTES.AUTH.REFRESH_TOKEN)
-  refreshToken(
-    @Body()
-    refreshTokenDTO: RefreshTokenDTO
+  async refreshToken(
+    @Request()
+    req,
+    @Response()
+    res
   ) {
-    return this.authService.refreshToken(refreshTokenDTO)
+    const refreshTokenDTO = new RefreshTokenDTO()
+    refreshTokenDTO.refreshToken = req.cookies.refreshToken
+    const newAccessToken = await this.authService.refreshToken(refreshTokenDTO)
+    res.cookie('accessToken', newAccessToken.accessToken, { httpOnly: true })
+    return res.status(200).json({
+      code: 200,
+      message: 'Success',
+      data: newAccessToken
+    })
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(ROUTES.AUTH.LOGOUT)
+  async logout(
+    @Request()
+    req,
+    @Response()
+    res
+  ) {
+    res.clearCookie('accessToken')
+    res.clearCookie('refreshToken')
+    return res.status(200).json({
+      code: 200,
+      message: 'Success'
+    })
   }
 
   @Get(ROUTES.AUTH.PROFILE)
