@@ -11,6 +11,14 @@ export const ROUTES = {
     UPLOAD: 'upload',
     UPLOADS: 'uploads',
     DELETE: 'delete'
+  },
+  PRODUCT: {
+    BASE: 'products',
+    FIND: 'find',
+    FIND_ONE: ':id',
+    UPDATE: ':id',
+    DELETE: ':id',
+    DELETE_MULTIPLES: 'delete-multiple'
   }
   // Add other routes here...
 }

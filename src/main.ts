@@ -4,11 +4,14 @@ import { ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { ResponseTransformInterceptor } from './middleware/response-transform-interceptor'
+import { SeedService } from './seed/seed.service'
 declare const module: any
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
   app.useGlobalPipes(new ValidationPipe())
+  // const seedService = app.get(SeedService)
+  // await seedService.seed()
   // app.useGlobalGuards(new RolesGuard(new Reflector()))
   app.useGlobalInterceptors(new ResponseTransformInterceptor());
   // Swagger documentation
