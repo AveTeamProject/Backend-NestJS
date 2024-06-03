@@ -28,9 +28,9 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
       username: configService.get<string>('dbUsername'),
       password: configService.get<string>('dbPassword'),
       entities: [User, Role, Product, Order, Attachment],
-      synchronize: true, // if production need set to false
+      synchronize: false, // if production need set to false
       migrations: ['dist/db/migrations/*.js'],
-      ssl: process.env.NODE_ENV === 'development' ? false : true
+      ssl: true
     }
   }
 }
