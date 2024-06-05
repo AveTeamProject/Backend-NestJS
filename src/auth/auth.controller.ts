@@ -1,4 +1,4 @@
-import { Body, Post, Controller, Get, UseGuards, Req, HttpStatus, Request, Response } from '@nestjs/common'
+import { Body, Post, Controller, Get, UseGuards, Req, HttpStatus, Request, Response, UseInterceptors } from '@nestjs/common'
 import { UserService } from 'src/user/user.service'
 import { AuthService } from './auth.service'
 import { CreateUserDTO } from 'src/user/dto/create-user.dto'
@@ -18,6 +18,7 @@ import { Roles } from '../decorators/roles.decorator'
 import { Public } from 'src/decorators/global.decorator'
 import { ROLES } from 'src/enums'
 import { ExampleException } from 'src/custom-exceptions/example-exception'
+import { CookieInterceptor } from 'src/middleware/cookie-interceptor'
 
 @Controller(ROUTES.AUTH.BASE)
 @ApiTags('Auth API')
@@ -43,47 +44,28 @@ export class AuthController {
 
   @Post(ROUTES.AUTH.LOGIN)
   @Public()
+  @UseInterceptors(CookieInterceptor)
   async login(
     @Body()
-    loginDTO: LoginDTO,
-    @Response()
-    res
+    loginDTO: LoginDTO
   ) {
-    const result = await this.authService.login(loginDTO)
-    if ('accessToken' in result) {
-      res.cookie('accessToken', result.accessToken, { httpOnly: true })
-      res.cookie('refreshToken', result.refreshToken, { httpOnly: true })
-    }
-    return res.status(200).json({
-      code: 200,
-      message: 'Success',
-      data: result
-    })
+    return await this.authService.login(loginDTO)
   }
 
   @Post(ROUTES.AUTH.REFRESH_TOKEN)
+  @UseInterceptors(CookieInterceptor)
   async refreshToken(
     @Request()
-    req,
-    @Response()
-    res
+    req
   ) {
     const refreshTokenDTO = new RefreshTokenDTO()
     refreshTokenDTO.refreshToken = req.cookies.refreshToken
-    const newAccessToken = await this.authService.refreshToken(refreshTokenDTO)
-    res.cookie('accessToken', newAccessToken.accessToken, { httpOnly: true })
-    return res.status(200).json({
-      code: 200,
-      message: 'Success',
-      data: newAccessToken
-    })
+    return await this.authService.refreshToken(refreshTokenDTO)
   }
 
   @UseGuards(JwtAuthGuard)
   @Post(ROUTES.AUTH.LOGOUT)
   async logout(
-    @Request()
-    req,
     @Response()
     res
   ) {

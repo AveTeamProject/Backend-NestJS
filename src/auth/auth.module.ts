@@ -8,6 +8,7 @@ import { ApiKeyStrategy } from './api-key-strategy'
 import { AuthController } from './auth.controller'
 import { PassportModule } from '@nestjs/passport'
 import { RolesGuard } from './roles.guard'
+import { CookieInterceptor } from 'src/middleware/cookie-interceptor'
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { RolesGuard } from './roles.guard'
       inject: [ConfigService]
     })
   ],
-  providers: [AuthService, JwtStrategy, RolesGuard, JwtService, ApiKeyStrategy],
+  providers: [AuthService, JwtStrategy, RolesGuard, JwtService, ApiKeyStrategy, CookieInterceptor],
   controllers: [AuthController],
   exports: [AuthService]
 })
