@@ -7,6 +7,7 @@ import { Product } from 'src/entities/product.entity'
 import { Role } from 'src/entities/role.entity'
 import { User } from 'src/entities/user.entity'
 import { DataSource, DataSourceOptions } from 'typeorm'
+import { addTransactionalDataSource } from 'typeorm-transactional'
 
 // Load ENV variable
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -34,7 +35,14 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
       ssl: true,
       logging: true
     }
-  }
+  },
+  async dataSourceFactory(options) {
+    if (!options) {
+      throw new Error('Invalid options passed');
+    }
+
+    return addTransactionalDataSource(new DataSource(options));
+  },
 }
 
 console.log('NODE_ENV: ', process.env.NODE_ENV)

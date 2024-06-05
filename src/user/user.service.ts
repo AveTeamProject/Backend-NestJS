@@ -11,6 +11,8 @@ import { Role } from 'src/entities/role.entity'
 import { CommonService } from 'src/common/common.service'
 import { ROLES } from 'src/enums'
 import { MailerService } from '@nestjs-modules/mailer'
+import { Transactional } from 'typeorm-transactional'
+import { Exception } from 'handlebars'
 
 @Injectable()
 export class UserService {
@@ -24,6 +26,8 @@ export class UserService {
     private readonly commonService: CommonService,
     private readonly mailerService: MailerService
   ) {}
+
+  @Transactional()
   async create(userDTO: CreateUserDTO): Promise<UserResponseDTO> {
     const user = new User()
     user.firstName = userDTO.firstName

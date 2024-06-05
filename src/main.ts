@@ -6,9 +6,11 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { ResponseTransformInterceptor } from './middleware/response-transform-interceptor'
 import * as cookieParser from 'cookie-parser'
 import { SeedService } from './seed/seed.service'
+import { initializeTransactionalContext, StorageDriver } from 'typeorm-transactional'
 declare const module: any
 
 async function bootstrap() {
+  initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
   const app = await NestFactory.create(AppModule)
   app.useGlobalPipes(new ValidationPipe())
   // const seedService = app.get(SeedService)
