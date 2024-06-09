@@ -12,7 +12,7 @@ import { Cache } from 'cache-manager'
 
 @Injectable()
 export class ProductService {
-  private readonly CacheExpiredTime : number = 3000
+  private readonly CacheExpiredTime: number = 3000
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
@@ -39,10 +39,12 @@ export class ProductService {
   async findOne(id: string): Promise<Product> {
     const cachedData = await this.cacheService.get<Product>(this.productCacheKey(id))
     if (cachedData) {
-      console.log('get data')
       return cachedData
     }
     const product = await this.productRepository.findOneBy({ id })
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`)
+    }
     await this.cacheService.set(this.productCacheKey(id), product, this.CacheExpiredTime)
     return product
   }
@@ -73,7 +75,7 @@ export class ProductService {
     }
   }
 
-  private productCacheKey(suffixes: string) : string {
+  private productCacheKey(suffixes: string): string {
     return `product-${suffixes}`
   }
 }
