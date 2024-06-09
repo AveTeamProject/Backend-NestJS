@@ -1,6 +1,11 @@
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModuleAsyncOptions, TypeOrmModuleOptions } from '@nestjs/typeorm'
-import { User } from 'src/user/user.entity'
+import { Attachment } from 'src/entities/attachment.entity'
+import { Category } from 'src/entities/category.entity'
+import { Order } from 'src/entities/order.entity'
+import { Product } from 'src/entities/product.entity'
+import { Role } from 'src/entities/role.entity'
+import { User } from 'src/entities/user.entity'
 import { DataSource, DataSourceOptions } from 'typeorm'
 
 // Load ENV variable
@@ -23,10 +28,11 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
       database: configService.get<string>('dbName'),
       username: configService.get<string>('dbUsername'),
       password: configService.get<string>('dbPassword'),
-      entities: [User],
+      entities: [User, Role, Product, Category, Order, Attachment],
       synchronize: true, // if production need set to false
       migrations: ['dist/db/migrations/*.js'],
-      ssl: true
+      ssl: true,
+      logging: true
     }
   }
 }

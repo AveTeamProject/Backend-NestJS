@@ -1,5 +1,5 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
-import { User } from 'src/user/user.entity'
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
+import { User } from 'src/entities/user.entity'
 import { UpdateResult } from 'typeorm'
 import * as speakeasy from 'speakeasy'
 import { JwtService } from '@nestjs/jwt'
@@ -7,8 +7,9 @@ import { UserService } from 'src/user/user.service'
 import { ConfigService } from '@nestjs/config'
 import { LoginDTO } from './dto/login.dto'
 import * as bcrypt from 'bcryptjs'
-import { Enable2FAType, PayloadType } from './types'
-import { RefreshTokenDTO } from './dto/refrestToken.dto'
+import { Enable2FAType, JwtPayload } from './types'
+import { RefreshTokenDTO } from './dto/refresh-token.dto'
+import { v4 as uuid4 } from 'uuid'
 
 type LoginResponse =
   | {
@@ -27,23 +28,11 @@ export class AuthService {
 
   async login(loginDTO: LoginDTO): Promise<LoginResponse> {
     const user = await this.userService.findOne(loginDTO) // 1.
-
     const passwordMatched = await bcrypt.compare(loginDTO.password, user.password)
 
     if (passwordMatched) {
       delete user.password
-      const payload: PayloadType = { email: user.email, userId: user.id }
-      // if (user.enable2FA && user.twoFASecret) {
-      //   //1.
-      //   // sends the validateToken request link
-      //   // else otherwise sends the json web token in the response
-      //   return {
-      //     //2.
-      //     validate2FA: 'http://localhost:3000/auth/validate-2fa',
-      //     message: 'Please sends the one time password/token from your Google Authenticator App'
-      //   }
-      // }
-
+      const payload: JwtPayload = { email: user.email, userId: user.id, roles: user.roles.map((role) => role.roleName) }
       const accessToken = this.jwtService.sign(payload, {
         secret: this.configService.get<string>('jwtSecret'),
         expiresIn: this.configService.get<string>('jwtAccessExpiresIn')
@@ -71,7 +60,7 @@ export class AuthService {
         secret: this.configService.get<string>('jwtRefreshSecret')
       })
 
-      const newPayload = { email: payload.email, userId: payload.userId }
+      const newPayload = { email: payload.email, userId: payload.userId, roles: payload.roles }
 
       const newAccessToken = this.jwtService.sign(newPayload, {
         secret: this.configService.get<string>('jwtSecret'),
@@ -86,7 +75,32 @@ export class AuthService {
     }
   }
 
-  async enable2FA(userId: number): Promise<Enable2FAType> {
+  async sendCode(email: string) {
+    const foundUser = await this.userService.findByEmail(email)
+    if (!foundUser) throw new NotFoundException('User not found')
+
+    const date = new Date()
+    date.setMinutes(date.getMinutes() + 5)
+
+    try {
+      await this.userService.saveCodeAndSendMail(foundUser, uuid4(), date)
+    } catch (e) {
+      throw new UnauthorizedException('Error sending code')
+    }
+  }
+
+  async updatePassword(code: string, newPassword: string) {
+    const foundUser = await this.userService.findByVerificationCode(code)
+    if (!foundUser) throw new NotFoundException('User not found')
+
+    try {
+      await this.userService.updatePassword(foundUser, newPassword)
+    } catch (e) {
+      throw new UnauthorizedException('Error updating password')
+    }
+  }
+
+  async enable2FA(userId: string): Promise<Enable2FAType> {
     const user = await this.userService.findById(userId) //1
     if (user.enable2FA) {
       //2
@@ -98,7 +112,7 @@ export class AuthService {
     await this.userService.updateSecretKey(user.id, user.twoFASecret) //5
     return { secret: user.twoFASecret } //6
   }
-  async validate2FAToken(userId: number, token: string): Promise<{ verified: boolean }> {
+  async validate2FAToken(userId: string, token: string): Promise<{ verified: boolean }> {
     try {
       // find the user on the based on id
       const user = await this.userService.findById(userId)
@@ -122,7 +136,7 @@ export class AuthService {
       throw new UnauthorizedException('Error verifying token')
     }
   }
-  async disable2FA(userId: number): Promise<UpdateResult> {
+  async disable2FA(userId: string): Promise<UpdateResult> {
     return this.userService.disable2FA(userId)
   }
   async validateUserByApiKey(apiKey: string): Promise<User> {

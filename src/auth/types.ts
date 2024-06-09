@@ -1,7 +1,7 @@
-export interface PayloadType {
+export interface JwtPayload {
   email: string
-  userId: number
-  artistId?: number
+  userId: string
+  roles: string[]
 }
 
 export type Enable2FAType = {
