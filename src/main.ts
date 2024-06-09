@@ -19,10 +19,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ResponseTransformInterceptor())
   app.use(cookieParser())
 
-  if (process.env.NODE_ENV === 'production') {
-    const { httpAdapter } = app.get(HttpAdapterHost)
-    Sentry.setupNestErrorHandler(app, new BaseExceptionFilter(httpAdapter))
-  }
+  
   // Sentry.init({
   //   dsn: process.env.SENTRY_DNS,
   // });
