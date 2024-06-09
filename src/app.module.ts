@@ -17,6 +17,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { join } from 'path'
 import { SeedModule } from './seed/seed.module'
 import { typeOrmAsyncConfig } from 'db/data-source'
+import { CacheModule } from '@nestjs/cache-manager'
 import { SentryModule } from '@ntegral/nestjs-sentry'
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { SentryModule } from '@ntegral/nestjs-sentry'
       inject: [ConfigService]
     }),
     TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
+    CacheModule.register({ isGlobal: true }),
     JwtModule,
     AuthModule,
     UserModule,
