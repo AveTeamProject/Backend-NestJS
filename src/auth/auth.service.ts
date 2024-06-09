@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { User } from 'src/entities/user.entity'
 import { UpdateResult } from 'typeorm'
 import * as speakeasy from 'speakeasy'
@@ -9,6 +9,7 @@ import { LoginDTO } from './dto/login.dto'
 import * as bcrypt from 'bcryptjs'
 import { Enable2FAType, JwtPayload } from './types'
 import { RefreshTokenDTO } from './dto/refresh-token.dto'
+import { v4 as uuid4 } from 'uuid'
 
 type LoginResponse =
   | {
@@ -71,6 +72,31 @@ export class AuthService {
       }
     } catch (e) {
       throw new UnauthorizedException('Invalid refresh token')
+    }
+  }
+
+  async sendCode(email: string) {
+    const foundUser = await this.userService.findByEmail(email)
+    if (!foundUser) throw new NotFoundException('User not found')
+
+    const date = new Date()
+    date.setMinutes(date.getMinutes() + 5)
+
+    try {
+      await this.userService.saveCodeAndSendMail(foundUser, uuid4(), date)
+    } catch (e) {
+      throw new UnauthorizedException('Error sending code')
+    }
+  }
+
+  async updatePassword(code: string, newPassword: string) {
+    const foundUser = await this.userService.findByVerificationCode(code)
+    if (!foundUser) throw new NotFoundException('User not found')
+
+    try {
+      await this.userService.updatePassword(foundUser, newPassword)
+    } catch (e) {
+      throw new UnauthorizedException('Error updating password')
     }
   }
 
