@@ -7,8 +7,8 @@ export const ROUTES = {
     PROFILE: 'profile',
     LOGOUT: 'logout',
     SEND_CODE: 'send-code',
-    VERIFY_CODE: 'verify_code',
-    RESET_PASSWORD: 'reset_password'
+    VERIFY_CODE: 'verify-code',
+    RESET_PASSWORD: 'reset-password'
   },
   ATTACHMENT: {
     BASE: 'attachment',
