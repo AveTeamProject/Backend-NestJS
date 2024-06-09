@@ -1,12 +1,11 @@
 import {
+  BadRequestException,
   Controller,
   Delete,
-  Logger,
-  MaxFileSizeValidator,
-  ParseFilePipe,
+  // Get,
+  Param,
   Post,
-  Query,
-  Req,
+  Put,
   UploadedFile,
   UploadedFiles,
   UseGuards,
@@ -16,92 +15,75 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express'
 import { AttachmentService } from './attachment.service'
 import { JwtAuthGuard } from 'src/auth/jwt-guard'
 import { ApiTags } from '@nestjs/swagger'
-import { ROLES } from 'src/enums'
-import { Roles } from 'src/decorators/roles.decorator'
 import { ROUTES } from 'src/common/constants'
-import { RolesGuard } from 'src/auth/roles.guard'
-import * as multer from 'multer'
+import { MAX_COUNT_FILE, allFileUploadOptions, imageUploadOptions } from 'src/config/file-upload.config'
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+
+const fileFilter = (req, file, callback) => {
+  if (file.size > MAX_FILE_SIZE) {
+    return callback(new BadRequestException('File size exceeds the 5MB limit'), false)
+  }
+  callback(null, true)
+}
 
 @Controller(ROUTES.ATTACHMENT.BASE)
 @ApiTags('Attachment API')
 export class AttachmentController {
-  private readonly logger = new Logger(AttachmentController.name);
   constructor(private readonly attachmentService: AttachmentService) {}
 
-  @Post(ROUTES.ATTACHMENT.UPLOAD)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLES.ADMIN)
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: multer.diskStorage({
-        destination: './uploads',
-        filename: (req, file, cb) => {
-          cb(null, `${Date.now()}-${file.originalname}`)
-        }
-      })
-    })
-  )
-  async uploadFile(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [new MaxFileSizeValidator({ maxSize: 1024 * 1024 })] // maximum size is 1MB
-      })
-    )
-    file: Express.Multer.File,
-    @Req()
-    request
-  ) {
-    try {
-      const uploadedAttachment = await this.attachmentService.upload(request, file.originalname, file.buffer)
-      return { data: uploadedAttachment }
-    } catch (error) {
-      this.logger.error(error)
-    }
+  @Post(ROUTES.ATTACHMENT.UPLOAD_IMAGE)
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file', imageUploadOptions))
+  async uploadImage(@UploadedFile() file: Express.Multer.File) {
+    const key = await this.attachmentService.uploadFile(file.originalname, file.buffer)
+    const url = await this.attachmentService.getSignedUrl(key)
+    return { key, url }
   }
 
-  // upload multi file
+  @Post(ROUTES.ATTACHMENT.UPLOAD)
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file', allFileUploadOptions))
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+    const key = await this.attachmentService.uploadFile(file.originalname, file.buffer)
+    const url = await this.attachmentService.getSignedUrl(key)
+    return { key, url }
+  }
+
   @Post(ROUTES.ATTACHMENT.UPLOADS)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLES.ADMIN)
-  @UseInterceptors(
-    FilesInterceptor('files', 10, {
-      storage: multer.diskStorage({
-        destination: './uploads',
-        filename: (req, file, cb) => {
-          cb(null, `${Date.now()}-${file.originalname}`)
-        }
-      }),
-      limits: { fileSize: 1024 * 1024 } // limit 1MB per file
-    })
-  )
-  async uploads(
-    @UploadedFiles() files: Express.Multer.File[],
-    @Req()
-    request
-  ) {
-    try {
-      const medias = []
-      for (const file of files) {
-        medias.push(await this.attachmentService.upload(request, file.originalname, file.buffer))
-      }
-      return medias
-    } catch (error) {
-      this.logger.error(error)
-    }
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FilesInterceptor('files', MAX_COUNT_FILE, allFileUploadOptions))
+  async uploadMultipleFiles(@UploadedFiles() files: Express.Multer.File[]) {
+    const uploadPromises = files.map((file) => this.attachmentService.uploadFile(file.originalname, file.buffer))
+    const keys = await Promise.all(uploadPromises)
+    const urls = await Promise.all(keys.map((key) => this.attachmentService.getSignedUrl(key)))
+    return keys.map((key, index) => ({ key, url: urls[index] }))
   }
 
   @Delete(ROUTES.ATTACHMENT.DELETE)
   @UseGuards(JwtAuthGuard)
-  async delete(
-    @Query('id') fileId: string,
-    @Req()
-    request
-  ) {
-    try {
-      await this.attachmentService.delete(request, fileId)
-      return { message: 'File deleted successfully' }
-    } catch (error) {
-      this.logger.error(error)
-    }
+  async deleteFile(@Param('folder') folder: string, @Param('key') key: string) {
+    await this.attachmentService.deleteFile(folder, key)
+    return { message: 'File deleted successfully' }
   }
+
+  @Put(ROUTES.ATTACHMENT.UPDATE)
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file', { fileFilter }))
+  async updateFile(
+    @Param('folder') folder: string,
+    @Param('key') key: string,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    await this.attachmentService.deleteFile(folder, key)
+    const newKey = await this.attachmentService.uploadFile(file.originalname, file.buffer)
+    const url = await this.attachmentService.getSignedUrl(newKey)
+    return { key: newKey, url }
+  }
+
+  // @Get('download/:key')
+  // async downloadFile(@Param('key') key: string) {
+  //   const url = await this.attachmentService.getSignedUrl(key)
+  //   url
+  // }
 }

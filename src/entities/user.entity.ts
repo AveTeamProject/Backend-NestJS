@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Order } from 'src/entities/order.entity'
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm'
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm'
 import { BaseEntity } from './base.entity'
 import { Role } from './role.entity'
+
+import * as bcrypt from 'bcrypt'
 
 @Entity('users')
 export class User extends BaseEntity {
@@ -37,6 +39,12 @@ export class User extends BaseEntity {
   @Column({ default: false, type: 'boolean' })
   enable2FA: boolean
 
+  @Column({ nullable: true, type: 'text' })
+  verificationCode: string
+
+  @Column({ nullable: true, type: 'timestamp without time zone' })
+  verificationCodeExpiredTime: Date
+
   @Column()
   apiKey: string
 
@@ -46,4 +54,13 @@ export class User extends BaseEntity {
   @ManyToMany(() => Role)
   @JoinTable({ name: 'user_roles' })
   roles: Role[]
+
+  // Make sure password hashed before insert to database
+  @BeforeInsert()
+  @BeforeUpdate()
+  async hashPassword() {
+    if (this.password) {
+      this.password = await bcrypt.hash(this.password, 10)
+    }
+  }
 }

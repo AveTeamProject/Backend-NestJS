@@ -108,6 +108,18 @@ export class AuthController {
     }
   }
 
+  @Post(ROUTES.AUTH.SEND_CODE)
+  @Public()
+  sendCode(@Body() { email }: { email: string }) {
+    return this.authService.sendCode(email)
+  }
+
+  @Post(ROUTES.AUTH.RESET_PASSWORD)
+  @Public()
+  resetPassword(@Body() { code, newPassword }: { code: string; newPassword: string }) {
+    return this.authService.updatePassword(code, newPassword)
+  }
+
   @Get('test')
   @UseGuards(JwtAuthGuard, RolesGuard) // Ensure correct order
   @Roles(ROLES.ADMIN)

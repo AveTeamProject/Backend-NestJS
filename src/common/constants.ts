@@ -5,13 +5,18 @@ export const ROUTES = {
     LOGIN: 'login',
     REFRESH_TOKEN: 'refresh-token',
     PROFILE: 'profile',
-    LOGOUT: 'logout'
+    LOGOUT: 'logout',
+    SEND_CODE: 'send-code',
+    VERIFY_CODE: 'verify_code',
+    RESET_PASSWORD: 'reset_password'
   },
   ATTACHMENT: {
     BASE: 'attachment',
     UPLOAD: 'upload',
     UPLOADS: 'uploads',
-    DELETE: 'delete'
+    UPLOAD_IMAGE: 'upload-image',
+    DELETE: 'delete/:folder/:key',
+    UPDATE: 'delete/:folder/:key'
   },
   PRODUCT: {
     BASE: 'products',

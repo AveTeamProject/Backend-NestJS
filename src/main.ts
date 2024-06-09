@@ -58,6 +58,8 @@ async function bootstrap() {
   const configService = app.get(ConfigService)
   await app.listen(configService.get<number>('port'))
 
+  console.log('PORT: ', configService.get<number>('port'))
+
   if (module.hot) {
     module.hot.accept()
     module.hot.dispose(() => app.close())
