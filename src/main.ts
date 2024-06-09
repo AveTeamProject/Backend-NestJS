@@ -1,4 +1,4 @@
-import "./sentry/instrument"
+import './sentry/instrument'
 import { BaseExceptionFilter, HttpAdapterHost, NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
 import { ValidationPipe } from '@nestjs/common'
@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { ResponseTransformInterceptor } from './middleware/response-transform-interceptor'
 import * as cookieParser from 'cookie-parser'
-import * as Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node'
 import { SeedService } from './seed/seed.service'
 declare const module: any
 
@@ -19,10 +19,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new ResponseTransformInterceptor())
   app.use(cookieParser())
 
-  if (process.env.NODE_ENV === 'production') {
-    const { httpAdapter } = app.get(HttpAdapterHost);
-    Sentry.setupNestErrorHandler(app, new BaseExceptionFilter(httpAdapter));
-  }
+  
   // Sentry.init({
   //   dsn: process.env.SENTRY_DNS,
   // });
