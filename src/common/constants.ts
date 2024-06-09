@@ -16,7 +16,7 @@ export const ROUTES = {
     UPLOADS: 'uploads',
     UPLOAD_IMAGE: 'upload-image',
     DELETE: 'delete/:folder/:key',
-    UPDATE: 'delete/:folder/:key'
+    UPDATE: 'update/:folder/:key'
   },
   PRODUCT: {
     BASE: 'products',
