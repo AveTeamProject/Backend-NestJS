@@ -17,6 +17,7 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { join } from 'path'
 import { SeedModule } from './seed/seed.module'
 import { typeOrmAsyncConfig } from 'db/data-source'
+import { SentryModule } from '@ntegral/nestjs-sentry'
 @Module({
   imports: [
     ConfigModule.forRoot({

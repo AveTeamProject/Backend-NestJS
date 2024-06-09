@@ -1,4 +1,4 @@
-import { Body, Post, Controller, Get, UseGuards, Req, HttpStatus, Request, Response, UseInterceptors } from '@nestjs/common'
+import { Body, Post, Controller, Get, UseGuards, Req, HttpStatus, Request, Response, UseInterceptors, Logger } from '@nestjs/common'
 import { UserService } from 'src/user/user.service'
 import { AuthService } from './auth.service'
 import { CreateUserDTO } from 'src/user/dto/create-user.dto'
@@ -24,6 +24,7 @@ import { CookieInterceptor } from 'src/middleware/cookie-interceptor'
 @ApiTags('Auth API')
 @ApiCookieAuth()
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
   constructor(
     private userService: UserService,
     private authService: AuthService
@@ -35,11 +36,15 @@ export class AuthController {
     status: 200,
     description: 'It will return the user in the response'
   })
-  signup(
+  async signup(
     @Body()
     userDTO: CreateUserDTO
   ): Promise<UserResponseDTO> {
-    return this.userService.create(userDTO)
+    try {
+      return await this.userService.create(userDTO)
+    } catch (error) {
+      this.logger.error(error)
+    }
   }
 
   @Post(ROUTES.AUTH.LOGIN)
@@ -49,7 +54,11 @@ export class AuthController {
     @Body()
     loginDTO: LoginDTO
   ) {
-    return await this.authService.login(loginDTO)
+    try {
+      return await this.authService.login(loginDTO)
+    } catch (error) {
+      this.logger.error(error)
+    }
   }
 
   @Post(ROUTES.AUTH.REFRESH_TOKEN)
@@ -58,9 +67,13 @@ export class AuthController {
     @Request()
     req
   ) {
-    const refreshTokenDTO = new RefreshTokenDTO()
-    refreshTokenDTO.refreshToken = req.cookies.refreshToken
-    return await this.authService.refreshToken(refreshTokenDTO)
+    try {
+      const refreshTokenDTO = new RefreshTokenDTO()
+      refreshTokenDTO.refreshToken = req.cookies.refreshToken
+      return await this.authService.refreshToken(refreshTokenDTO)
+    } catch (error) {
+      this.logger.error(error)
+    }
   }
 
   @UseGuards(JwtAuthGuard)
@@ -69,12 +82,16 @@ export class AuthController {
     @Response()
     res
   ) {
-    res.clearCookie('accessToken')
-    res.clearCookie('refreshToken')
-    return res.status(200).json({
-      code: 200,
-      message: 'Success'
-    })
+    try {
+	    res.clearCookie('accessToken')
+	    res.clearCookie('refreshToken')
+	    return res.status(200).json({
+	      code: 200,
+	      message: 'Success'
+	    })
+    } catch (error) {
+      this.logger.error(error)
+    }
   }
 
   @Get(ROUTES.AUTH.PROFILE)
@@ -84,18 +101,30 @@ export class AuthController {
     @Req()
     request
   ) {
-    return request.user
+    try {
+      return request.user
+    } catch (error) {
+      this.logger.error(error)
+    }
   }
 
   @Get('test')
   @UseGuards(JwtAuthGuard, RolesGuard) // Ensure correct order
   @Roles(ROLES.ADMIN)
   testEnvVariable() {
-    return this.authService.getEnvVariable()
+    try {
+      return this.authService.getEnvVariable()
+    } catch (error) {
+      this.logger.error(error)
+    }
   }
 
   @Get('testCustomException')
-  testCustomException(): string {
-    throw new ExampleException('Custom message', HttpStatus.NOT_FOUND)
+  testCustomException(): string | void {
+    try {
+      throw new ExampleException('Custom message', HttpStatus.NOT_FOUND)
+    } catch (error) {
+      this.logger.error(error)
+    }
   }
 }
