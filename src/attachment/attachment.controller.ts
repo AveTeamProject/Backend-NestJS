@@ -1,6 +1,7 @@
 import {
   Controller,
   Delete,
+  Logger,
   MaxFileSizeValidator,
   ParseFilePipe,
   Post,
@@ -24,6 +25,7 @@ import * as multer from 'multer'
 @Controller(ROUTES.ATTACHMENT.BASE)
 @ApiTags('Attachment API')
 export class AttachmentController {
+  private readonly logger = new Logger(AttachmentController.name);
   constructor(private readonly attachmentService: AttachmentService) {}
 
   @Post(ROUTES.ATTACHMENT.UPLOAD)
@@ -49,8 +51,12 @@ export class AttachmentController {
     @Req()
     request
   ) {
-    const uploadedAttachment = await this.attachmentService.upload(request, file.originalname, file.buffer)
-    return { data: uploadedAttachment }
+    try {
+      const uploadedAttachment = await this.attachmentService.upload(request, file.originalname, file.buffer)
+      return { data: uploadedAttachment }
+    } catch (error) {
+      this.logger.error(error)
+    }
   }
 
   // upload multi file
@@ -73,11 +79,15 @@ export class AttachmentController {
     @Req()
     request
   ) {
-    const medias = []
-    for (const file of files) {
-      medias.push(await this.attachmentService.upload(request, file.originalname, file.buffer))
+    try {
+      const medias = []
+      for (const file of files) {
+        medias.push(await this.attachmentService.upload(request, file.originalname, file.buffer))
+      }
+      return medias
+    } catch (error) {
+      this.logger.error(error)
     }
-    return medias
   }
 
   @Delete(ROUTES.ATTACHMENT.DELETE)
@@ -87,7 +97,11 @@ export class AttachmentController {
     @Req()
     request
   ) {
-    await this.attachmentService.delete(request, fileId)
-    return { message: 'File deleted successfully' }
+    try {
+      await this.attachmentService.delete(request, fileId)
+      return { message: 'File deleted successfully' }
+    } catch (error) {
+      this.logger.error(error)
+    }
   }
 }

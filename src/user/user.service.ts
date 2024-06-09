@@ -35,7 +35,7 @@ export class UserService {
     user.roles = [defaultRole]
 
     const salt = await bcrypt.genSalt()
-    user.password = await bcrypt.hash(userDTO.password, salt)
+    // user.password = await bcrypt.hash(userDTO.password, salt)
 
     const savedUser = await this.userRepository.save(user)
 
