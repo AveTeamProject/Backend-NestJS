@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Controller,
   Delete,
   // Get,
@@ -17,15 +16,6 @@ import { JwtAuthGuard } from 'src/auth/jwt-guard'
 import { ApiTags } from '@nestjs/swagger'
 import { ROUTES } from 'src/common/constants'
 import { MAX_COUNT_FILE, allFileUploadOptions, imageUploadOptions } from 'src/config/file-upload.config'
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
-
-const fileFilter = (req, file, callback) => {
-  if (file.size > MAX_FILE_SIZE) {
-    return callback(new BadRequestException('File size exceeds the 5MB limit'), false)
-  }
-  callback(null, true)
-}
 
 @Controller(ROUTES.ATTACHMENT.BASE)
 @ApiTags('Attachment API')
@@ -69,7 +59,7 @@ export class AttachmentController {
 
   @Put(ROUTES.ATTACHMENT.UPDATE)
   @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('file', { fileFilter }))
+  @UseInterceptors(FileInterceptor('file', allFileUploadOptions))
   async updateFile(
     @Param('folder') folder: string,
     @Param('key') key: string,
