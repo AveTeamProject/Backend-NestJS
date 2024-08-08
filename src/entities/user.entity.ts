@@ -56,11 +56,11 @@ export class User extends BaseEntity {
   roles: Role[]
 
   // Make sure password hashed before insert to database
-  @BeforeInsert()
-  @BeforeUpdate()
-  async hashPassword() {
-    if (this.password) {
-      this.password = await bcrypt.hash(this.password, 10)
-    }
-  }
+  // @BeforeInsert()
+  // @BeforeUpdate()
+  // async hashPassword() {
+  //   if (this.password) {
+  //     this.password = await bcrypt.hash(this.password, 10)
+  //   }
+  // }
 }
